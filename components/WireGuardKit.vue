@@ -2,10 +2,6 @@
   <div
     class="relative flex items-top justify-center min-h-screen bg-gray-100 sm:items-center sm:pt-0"
   >
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.1.2/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8 py-8">
       <div class="bg-white overflow-hidden shadow sm:rounded-lg p-6 mb-6">
         <h1 class="text-3xl leading-9 font-bold text-gray-900 mb-4">
@@ -39,12 +35,21 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Private Key
             </label>
-            <input
-              v-model="config.privateKey"
-              type="text"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Your private key"
-            />
+            <div class="relative">
+              <input
+                v-model="config.privateKey"
+                :type="showPrivateKey ? 'text' : 'password'"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Your private key"
+              />
+              <button
+                type="button"
+                class="absolute inset-y-0 right-0 px-3 flex items-center text-sm text-gray-600 hover:text-gray-900"
+                @click="showPrivateKey = !showPrivateKey"
+              >
+                {{ showPrivateKey ? 'Hide' : 'Show' }}
+              </button>
+            </div>
           </div>
 
           <div>
@@ -223,6 +228,8 @@ export default {
       },
       generatedConfig: '',
       copySuccess: false,
+      validationError: '',
+      showPrivateKey: false,
     }
   },
   methods: {
@@ -239,9 +246,12 @@ export default {
       } = this.config
 
       if (!privateKey || !address || !peerPublicKey || !endpoint) {
-        alert('Please fill in all required fields')
+        this.validationError =
+          'Please fill in all required fields: Private Key, Address, Peer Public Key, and Endpoint'
         return
       }
+
+      this.validationError = ''
 
       this.generatedConfig = `[Interface]
 # Name: ${interfaceName}
@@ -268,6 +278,8 @@ PersistentKeepalive = ${persistentKeepalive}`
       }
       this.generatedConfig = ''
       this.copySuccess = false
+      this.validationError = ''
+      this.showPrivateKey = false
     },
     copyToClipboard() {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -279,8 +291,7 @@ PersistentKeepalive = ${persistentKeepalive}`
               this.copySuccess = false
             }, 3000)
           })
-          .catch((err) => {
-            console.error('Failed to copy:', err)
+          .catch(() => {
             this.fallbackCopy()
           })
       } else {
@@ -288,6 +299,7 @@ PersistentKeepalive = ${persistentKeepalive}`
       }
     },
     fallbackCopy() {
+      // Fallback for older browsers
       const textArea = document.createElement('textarea')
       textArea.value = this.generatedConfig
       textArea.style.position = 'fixed'
@@ -295,13 +307,15 @@ PersistentKeepalive = ${persistentKeepalive}`
       document.body.appendChild(textArea)
       textArea.select()
       try {
-        document.execCommand('copy')
-        this.copySuccess = true
-        setTimeout(() => {
-          this.copySuccess = false
-        }, 3000)
+        const successful = document.execCommand('copy')
+        if (successful) {
+          this.copySuccess = true
+          setTimeout(() => {
+            this.copySuccess = false
+          }, 3000)
+        }
       } catch (err) {
-        console.error('Failed to copy:', err)
+        // Silently fail - user can manually copy
       }
       document.body.removeChild(textArea)
     },
