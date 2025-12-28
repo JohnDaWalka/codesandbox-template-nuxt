@@ -74,6 +74,21 @@
             >pages/index.vue</code
           >. Have fun!
         </p>
+        <div class="mt-6 pt-6 border-t border-dashed">
+          <h3 class="text-xl font-semibold text-gray-900 mb-3">
+            🔐 WireGuard iOS Configuration Kit
+          </h3>
+          <p class="text-gray-600 mb-4">
+            Configure and manage your custom WireGuard VPN settings optimized
+            for iOS devices.
+          </p>
+          <a
+            href="/wireguard"
+            class="inline-block px-6 py-3 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors"
+          >
+            Open WireGuard Kit →
+          </a>
+        </div>
       </div>
       <div class="flex justify-center pt-4 space-x-2">
         <a href="https://github.com/nuxt/nuxt.js" target="_blank"
